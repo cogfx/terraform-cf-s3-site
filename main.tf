@@ -10,10 +10,6 @@ provider "aws" {
 
   # skip_requesting_account_id should be disabled to generate valid ARN in apigatewayv2_api_execution_arn
   skip_requesting_account_id = false
-
-  assume_role {
-    role_arn    = "arn:aws:iam::489809921214:role/deploy-website-infrastructure"
-  }
 }
 
 # Configure additional AWS Provider
