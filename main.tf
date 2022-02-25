@@ -10,6 +10,7 @@ provider "aws" {
 
   # skip_requesting_account_id should be disabled to generate valid ARN in apigatewayv2_api_execution_arn
   skip_requesting_account_id = false
+  
 }
 
 # Configure additional AWS Provider
