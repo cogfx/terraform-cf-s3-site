@@ -1,5 +1,4 @@
 # This is a basic workflow to help you get started with Actions
-
 name: Terraform Plan
 
 # Controls when the workflow will run
@@ -25,6 +24,18 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
+      # Assume AWS Role
+      - name: Assume AWS role with privileges to deploy Terraform state
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+      
+      # Confirm access
+      - name: Confirm AWS role credentials work
+        run: aws sts get-caller-identity
+        
       # Runs a single command using the runners shell
       - name: Run a one-line script
         run: echo Hello, world!
