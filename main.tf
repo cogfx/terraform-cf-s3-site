@@ -1,25 +1,15 @@
-terraform {
-  required_providers {
-    aws = {
-      source = "hashicorp/aws"
-      version = "= 3.74.2"
-    }
-  }  
-}
-
 # Configure the default AWS Provider
 provider "aws" {
   region = "ca-central-1"
 
-  # Make it faster by skipping something
-  skip_get_ec2_platforms      = true
-  skip_metadata_api_check     = true
-  skip_region_validation      = true
-  skip_credentials_validation = true
-
   # skip_requesting_account_id should be disabled to generate valid ARN in apigatewayv2_api_execution_arn
   skip_requesting_account_id = false
-  
+
+  default_tags {
+    tags = {
+      environment = "dev"
+    }
+  }
 }
 
 # Configure additional AWS Provider
@@ -29,14 +19,42 @@ provider "aws" {
   region = "us-east-1"
 }
 
-module "s3_one" {
+resource "random_id" "this" {
+  byte_length = 4
+}
+
+# Create S3 bucket (will be used as CloudFront origin)
+module "s3_bucket" {
   source  = "terraform-aws-modules/s3-bucket/aws"
   version = "~> 2.0"
 
-  bucket        = "s3-one-${random_pet.this.id}"
-  force_destroy = true
+  bucket = "s3-cc-${lower(random_id.this.id)}"
+  acl    = "private"
+
+  # organization SCP blocks public S3 buckets
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+
+
+  # organization policy -> all S3 buckets must be encrypted using KMS
+  # encrupt using AWS managed S3 key for compatibility with AWS CloudFront
+  server_side_encryption_configuration = {
+    rule = {
+      apply_server_side_encryption_by_default = {
+        sse_algorithm = "AES256"
+      }
+    }
+  }
+
+  #force_destroy = false # bucket contents will need to be addressed manually
+
+  # tags = {
+  #   environment = "dev"
+  # }
 }
 
-resource "random_pet" "this" {
-  length = 2
+output "id" {
+  value = random_id.this.id
 }
