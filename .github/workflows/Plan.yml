@@ -22,31 +22,3 @@ jobs:
         uses: hashicorp/setup-terraform@v1
         with:
           cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
-
-      # Assume AWS Role
-#       - name: Assume AWS role
-#         uses: aws-actions/configure-aws-credentials@v1
-#         with:
-#           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-#           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-#           role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
-#           aws-region: ca-central-1
-      
-      - name: Terraform Format
-        id: fmt
-        run: terraform fmt -check
-        continue-on-error: true
-
-#       - name: Terraform Init
-#         id: init
-#         run: terraform init
-
-#       - name: Terraform Validate
-#         id: validate
-#         run: terraform validate -no-color
-
-#       - name: Terraform Plan
-#         id: plan
-#         run: terraform plan -no-color
-#         continue-on-error: true
-      
