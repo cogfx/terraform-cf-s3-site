@@ -20,9 +20,16 @@ jobs:
       # Install the latest version of Terraform CLI and configure the Terraform CLI configuration file with a Terraform Cloud user API token
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v1
-        with:
-          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
       
+      # Configure AWS assume-role identity
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ca-central-1
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+        
       # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
       - name: Terraform Init
         id: init
@@ -33,10 +40,10 @@ jobs:
         id: validate
         run: terraform validate -no-color
 
-    # Generates an execution plan for Terraform, only on pull request
-      - name: Terraform Plan
-        id: plan
-        #if: github.event_name == 'pull_request'
-        run: terraform plan -no-color
-        continue-on-error: true
+#     # Generates an execution plan for Terraform, only on pull request
+#       - name: Terraform Plan
+#         id: plan
+#         #if: github.event_name == 'pull_request'
+#         run: terraform plan -no-color
+#         continue-on-error: true
   
