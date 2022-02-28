@@ -13,7 +13,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     environment:
-      name: dev
+      name: test
     steps:
     
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
@@ -23,7 +23,7 @@ jobs:
         run: echo "hello world ${{ github.repository }} - ${{ github.ref }}!!"
 
       - name: test
-        run: echo "secret -> ${{ dev.DEV_KEY }}!!"
+        run: echo "secret -> ${{ secrets.DEV_KEY }}!!"
 
     #   # Install the latest version of Terraform CLI and configure the Terraform CLI configuration file with a Terraform Cloud user API token
     #   - name: Setup Terraform
