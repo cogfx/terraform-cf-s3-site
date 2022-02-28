@@ -23,9 +23,7 @@ jobs:
         run: echo "hello world ${{ github.repository }} - ${{ github.ref }}!!"
 
       - name: test
-        env:
-          DEVY: ${{ env.DEV_KEY }}
-        run: echo "secret -> $DEVY!!"
+        run: echo "secret -> ${{ dev.DEV_KEY }}!!"
 
     #   # Install the latest version of Terraform CLI and configure the Terraform CLI configuration file with a Terraform Cloud user API token
     #   - name: Setup Terraform
