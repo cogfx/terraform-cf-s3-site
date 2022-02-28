@@ -24,7 +24,7 @@ jobs:
 
       - name: test
         env:
-          DEVY: ${{ secrets.DEV_KEY }}
+          DEVY: ${{ env.DEV_KEY }}
         run: echo "secret -> $DEVY!!"
 
     #   # Install the latest version of Terraform CLI and configure the Terraform CLI configuration file with a Terraform Cloud user API token
