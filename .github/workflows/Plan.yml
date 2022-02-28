@@ -12,6 +12,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    environment:
+      name: dev
     steps:
     
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
