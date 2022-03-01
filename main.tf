@@ -27,31 +27,43 @@ resource "random_id" "this" {
   byte_length = 4
 }
 
-### Create S3 bucket (will be used as CloudFront origin)
-module "s3_bucket" {
-  source  = "terraform-aws-modules/s3-bucket/aws"
-  version = "~> 2.0"
-
-  bucket = "${lower(var.org)}-cc-${lower(var.environment)}-cloudfront-s3origin-${lower(random_id.this.hex)}"
-  acl    = "private"
-
-  # organization SCP blocks public S3 buckets
-  block_public_acls       = true
-  block_public_policy     = true
-  ignore_public_acls      = true
-  restrict_public_buckets = true
-
-
-  # organization policy -> all S3 buckets must be encrypted using KMS
-  # encrupt using AWS managed S3 key for compatibility with AWS CloudFront
-  server_side_encryption_configuration = {
-    rule = {
-      apply_server_side_encryption_by_default = {
-        sse_algorithm = "AES256"
-      }
-    }
-  }
+### Create SNS Pipeline (used to alert)
+resource "aws_sns_topic" "this" {
+  name = "github-pipeline-${lower(random_id.this.hex)}"
+  display_name = "github-pipeline-${lower(random_id.this.hex)}"
 }
+
+resource "aws_sns_topic_subscription" "email" {
+  topic_arn = aws_sns_topic.this.arn
+  protocol  = "email"
+  endpoint  = "email@address.abc"
+}
+
+# ### Create S3 bucket (will be used as CloudFront origin)
+# module "s3_bucket" {
+#   source  = "terraform-aws-modules/s3-bucket/aws"
+#   version = "~> 2.0"
+
+#   bucket = "${lower(var.org)}-cc-${lower(var.environment)}-cloudfront-s3origin-${lower(random_id.this.hex)}"
+#   acl    = "private"
+
+#   # organization SCP blocks public S3 buckets
+#   block_public_acls       = true
+#   block_public_policy     = true
+#   ignore_public_acls      = true
+#   restrict_public_buckets = true
+
+
+#   # organization policy -> all S3 buckets must be encrypted using KMS
+#   # encrupt using AWS managed S3 key for compatibility with AWS CloudFront
+#   server_side_encryption_configuration = {
+#     rule = {
+#       apply_server_side_encryption_by_default = {
+#         sse_algorithm = "AES256"
+#       }
+#     }
+#   }
+# }
 
 ### Create TLS Certificate (AWS Certificate Manager)
 resource "aws_acm_certificate" "this" {
@@ -63,6 +75,8 @@ resource "aws_acm_certificate" "this" {
     create_before_destroy = true
   }
 }
+
+
 
 ### Create CloudFront Distribution
 
