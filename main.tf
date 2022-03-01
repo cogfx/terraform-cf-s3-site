@@ -7,7 +7,7 @@ provider "aws" {
 
   default_tags {
     tags = {
-      environment = "dev"
+      environment = var.environment
     }
   }
 }
@@ -23,12 +23,12 @@ resource "random_id" "this" {
   byte_length = 4
 }
 
-# Create S3 bucket (will be used as CloudFront origin)
+### Create S3 bucket (will be used as CloudFront origin)
 module "s3_bucket" {
   source  = "terraform-aws-modules/s3-bucket/aws"
   version = "~> 2.0"
 
-  bucket = "s3-cc-${lower(random_id.this.id)}"
+  bucket = "${lower(var.org)}-cc-${lower(var.environment)}-cloudfront-s3origin-${lower(random_id.this.hex)}"
   acl    = "private"
 
   # organization SCP blocks public S3 buckets
@@ -47,14 +47,13 @@ module "s3_bucket" {
       }
     }
   }
-
-  #force_destroy = false # bucket contents will need to be addressed manually
-
-  # tags = {
-  #   environment = "dev"
-  # }
 }
 
-output "id" {
-  value = random_id.this.id
-}
+### Create IAM OIA Policy
+
+### Data Create ACM
+
+### Create CloudFront Distribution
+
+### Create Route53 DNS entry
+
