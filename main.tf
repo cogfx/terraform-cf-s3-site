@@ -19,6 +19,10 @@ provider "aws" {
   region = "us-east-1"
 }
 
+locals {
+  domain_name = trimsuffix(var.domain_name, ".")
+}
+
 resource "random_id" "this" {
   byte_length = 4
 }
@@ -49,11 +53,23 @@ module "s3_bucket" {
   }
 }
 
-### Create IAM OIA Policy
+### Create TLS Certificate (AWS Certificate Manager)
+resource "aws_acm_certificate" "this" {
+  provider          = aws.us-east-1
+  domain_name       = local.domain_name
+  validation_method = "DNS"
 
-### Data Create ACM
+  lifecycle {
+    create_before_destroy = true
+  }
+}
 
 ### Create CloudFront Distribution
 
+### OAI - Data - IAM Policy - allow CF dist access S3 bucket
+
+### OAI - Resource - S3 Bucket Policy - connect IAM policy to S3 bucket
+
 ### Create Route53 DNS entry
 
+### Data Create ACM - done manually
