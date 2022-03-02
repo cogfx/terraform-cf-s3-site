@@ -7,6 +7,8 @@ provider "aws" {
 
   default_tags {
     tags = {
+      terraform-uid = lower(random_id.this.hex)
+      terraform-updated = timestamp()
       environment = var.environment
     }
   }
@@ -27,58 +29,95 @@ resource "random_id" "this" {
   byte_length = 4
 }
 
-### Create SNS Pipeline (used to alert)
-resource "aws_sns_topic" "this" {
-  name = "github-pipeline-${lower(random_id.this.hex)}"
-  display_name = "github-pipeline-${lower(random_id.this.hex)}"
+resource "random_id" "oai" {
+  byte_length = 8
 }
 
-resource "aws_sns_topic_subscription" "email" {
-  topic_arn = aws_sns_topic.this.arn
-  protocol  = "email"
-  endpoint  = "email@address.abc"
-}
+### S3 bucket - CloudFront origin content
+module "s3_bucket_content" {
+  source  = "terraform-aws-modules/s3-bucket/aws"
+  version = "~> 2.0"
 
-# ### Create S3 bucket (will be used as CloudFront origin)
-# module "s3_bucket" {
-#   source  = "terraform-aws-modules/s3-bucket/aws"
-#   version = "~> 2.0"
+  bucket = "${lower(var.org)}-cc-${lower(var.environment)}-cloudfront-content-${lower(random_id.this.hex)}"
+  acl    = "private"
 
-#   bucket = "${lower(var.org)}-cc-${lower(var.environment)}-cloudfront-s3origin-${lower(random_id.this.hex)}"
-#   acl    = "private"
-
-#   # organization SCP blocks public S3 buckets
-#   block_public_acls       = true
-#   block_public_policy     = true
-#   ignore_public_acls      = true
-#   restrict_public_buckets = true
+  # organization SCP blocks public S3 buckets
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
 
 
-#   # organization policy -> all S3 buckets must be encrypted using KMS
-#   # encrupt using AWS managed S3 key for compatibility with AWS CloudFront
-#   server_side_encryption_configuration = {
-#     rule = {
-#       apply_server_side_encryption_by_default = {
-#         sse_algorithm = "AES256"
-#       }
-#     }
-#   }
-# }
-
-### Create TLS Certificate (AWS Certificate Manager)
-resource "aws_acm_certificate" "this" {
-  provider          = aws.us-east-1
-  domain_name       = local.domain_name
-  validation_method = "DNS"
-
-  lifecycle {
-    create_before_destroy = true
+  # organization policy -> all S3 buckets must be encrypted using KMS
+  # encrupt using AWS managed S3 key for compatibility with AWS CloudFront
+  server_side_encryption_configuration = {
+    rule = {
+      apply_server_side_encryption_by_default = {
+        sse_algorithm = "AES256"
+      }
+    }
   }
 }
 
+### S3 bucket - CloudFront origin content
+module "s3_bucket_logs" {
+  source  = "terraform-aws-modules/s3-bucket/aws"
+  version = "~> 2.0"
+
+  bucket = "${lower(var.org)}-cc-${lower(var.environment)}-cloudfront-logs-${lower(random_id.this.hex)}"
+  acl    = "private"
+
+  # organization SCP blocks public S3 buckets
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
 
 
-### Create CloudFront Distribution
+  # organization policy -> all S3 buckets must be encrypted using KMS
+  # encrupt using AWS managed S3 key for compatibility with AWS CloudFront
+  server_side_encryption_configuration = {
+    rule = {
+      apply_server_side_encryption_by_default = {
+        sse_algorithm = "AES256"
+      }
+    }
+  }
+}
+
+# ### Create TLS Certificate (AWS Certificate Manager)
+# resource "aws_acm_certificate" "this" {
+#   provider          = aws.us-east-1
+#   domain_name       = local.domain_name
+#   validation_method = "DNS"
+
+#   lifecycle {
+#     create_before_destroy = true
+#   }
+# }
+
+# # ### Create CloudFront Distribution
+# # module "cdn" {
+# #   source = "terraform-aws-modules/cloudfront/aws"
+
+# #   aliases = ["${local.domain_name}"]
+
+# #   comment             = "${var.org} - S3 - (${var.environment})"
+# #   enabled             = true
+# #   is_ipv6_enabled     = true
+# #   price_class         = "PriceClass_100"
+# #   retain_on_delete    = false
+# #   wait_for_deployment = false
+
+# #   create_origin_access_identity = true
+# #   origin_access_identities = {
+# #     s3_bucket_one = "lower(${random_id.oai.hex})"
+# #   }
+
+
+
+# }
+
 
 ### OAI - Data - IAM Policy - allow CF dist access S3 bucket
 
