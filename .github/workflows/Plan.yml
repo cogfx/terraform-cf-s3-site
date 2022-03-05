@@ -34,7 +34,9 @@ jobs:
       
       - name: Extract Terraform version
         id: version-extract
-        run: echo "TF_VAR_TFVERSION=HELLO" >> $GITHUB_ENV
+        run: |
+          TFVERSION=$(terraform version -json | grep 'terraform_version' | sed -r 's/^[^:]*:(.*)$/\1/' | sed 's/"//g' | sed 's/,//g' | sed 's/[[:space:]]//g')
+          echo "TF_VAR_TFVERSION=$TFVERSION" >> $GITHUB_ENV
       
       - name: Echo Terraform version        
         run: echo "Terraform version is ${{env.TF_VAR_TFVERSION}}"
