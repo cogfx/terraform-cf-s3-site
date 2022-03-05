@@ -34,7 +34,7 @@ jobs:
       
       - name: Extract Terraform version
         id: version-extract
-        run: export TF_VAR_terraform_version=$(terraform version -json | grep 'terraform_version' | sed -r 's/^[^:]*:(.*)$/\1/' | sed 's/"//g' | sed 's/,//g')
+        run: echo $(terraform version -json | grep 'terraform_version' | sed -r 's/^[^:]*:(.*)$/\1/' | sed 's/"//g' | sed 's/,//g') >> $TF_VAR_terraform_version
       
       - name: Echo Terraform version        
         run: echo $TF_VAR_terraform_version
