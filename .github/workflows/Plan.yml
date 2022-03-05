@@ -19,13 +19,15 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
       
-      - name: test
-        run: echo "hello world ${{ github.repository }} - ${{ github.ref }}!!"
-
-    #   # Install the latest version of Terraform CLI and configure the Terraform CLI configuration file with a Terraform Cloud user API token
-    #   - name: Setup Terraform
-    #     uses: hashicorp/setup-terraform@v1
+      # Install the latest version of Terraform CLI and configure the Terraform CLI configuration file with a Terraform Cloud user API token
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
       
+      - name: Extract Terraform version
+        uses: sergeysova/jq-action@v2
+        with:
+          cmd: terraform version -json | jq .terraform_version | sed 's/"//g'
+
     #   # Configure AWS assume-role identity
     #   - name: Configure AWS Credentials
     #     uses: aws-actions/configure-aws-credentials@v1
