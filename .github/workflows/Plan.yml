@@ -32,14 +32,14 @@ jobs:
           aws-region: ca-central-1
           role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
       
-      - name: Extract Terraform version
-        id: version-extract
-        run: |
-          TFVERSION=$(terraform version -json | grep 'terraform_version' | sed -r 's/^[^:]*:(.*)$/\1/' | sed 's/"//g' | sed 's/,//g' | sed 's/[[:space:]]//g')
-          echo "TF_VAR_TFVERSION=$TFVERSION" >> $GITHUB_ENV
+      # - name: Extract Terraform version
+      #   id: version-extract
+      #   run: |
+      #     TFVERSION=$(terraform version -json | grep 'terraform_version' | sed -r 's/^[^:]*:(.*)$/\1/' | sed 's/"//g' | sed 's/,//g' | sed 's/[[:space:]]//g')
+      #     echo "TF_VAR_TFVERSION=$TFVERSION" >> $GITHUB_ENV
       
       - name: Echo Terraform version        
-        run: echo "Terraform version is ${{env.TF_VAR_TFVERSION}}"
+        run: terraform version
     
     #TF_VAR_TFVERSION=$(terraform version -json | grep 'terraform_version' | sed -r 's/^[^:]*:(.*)$/\1/' | sed 's/,//g' | sed 's/[[:space:]]//g')
     #   # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
