@@ -32,11 +32,11 @@ jobs:
           aws-region: ca-central-1
           role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
       
-      # - name: Extract Terraform version
-      #   id: version-extract
-      #   run: |
-      #     TFVERSION=$(terraform version -json | grep 'terraform_version' | sed -r 's/^[^:]*:(.*)$/\1/' | sed 's/"//g' | sed 's/,//g' | sed 's/[[:space:]]//g')
-      #     echo "TF_VAR_TFVERSION=$TFVERSION" >> $GITHUB_ENV
+      - name: Extract Terraform version
+        id: version-extract
+        run: |
+          TFVERSION=$(terraform version | grep Terraform)
+          echo "TF_VAR_TFVERSION=$TFVERSION" >> $GITHUB_ENV
       
       - name: Echo Terraform version        
         run: terraform version | grep Terraform
