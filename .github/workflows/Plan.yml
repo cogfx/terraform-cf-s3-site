@@ -21,22 +21,21 @@ jobs:
       
       # Install the latest version of Terraform CLI and configure the Terraform CLI configuration file with a Terraform Cloud user API token
       - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v1
+        uses: hashicorp/setup-terraform@v1    
+
+      # Configure AWS assume-role identity
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ca-central-1
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
       
       - name: Extract Terraform version
-        uses: sergeysova/jq-action@v2
-        with:
-          cmd: terraform version -json | jq .terraform_version | sed 's/"//g'
+        id: version-extract
+        run: terraform version -json | grep 'terraform_version' | sed -r 's/^[^:]*:(.*)$/\1/' | sed 's/"//g' | sed 's/,//g'
 
-    #   # Configure AWS assume-role identity
-    #   - name: Configure AWS Credentials
-    #     uses: aws-actions/configure-aws-credentials@v1
-    #     with:
-    #       aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-    #       aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-    #       aws-region: ca-central-1
-    #       role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
-        
     #   # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
     #   - name: Terraform Init
     #     id: init
