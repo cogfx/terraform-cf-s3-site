@@ -34,10 +34,10 @@ jobs:
       
       - name: Extract Terraform version
         id: version-extract
-        run: echo $(terraform version -json | grep 'terraform_version' | sed -r 's/^[^:]*:(.*)$/\1/' | sed 's/"//g' | sed 's/,//g') >> $TF_VAR_terraform_version
+        run: echo "TF_VAR_terraform_version=$(terraform version -json | grep 'terraform_version' | sed -r 's/^[^:]*:(.*)$/\1/' | sed 's/"//g' | sed 's/,//g' | sed 's/[[:space:]]//g')" >> $GITHUB_ENV
       
       - name: Echo Terraform version        
-        run: echo $TF_VAR_terraform_version
+        run: echo "Terraform version is ${{env.TF_VAR_terraform_version}}"
 
     #   # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
     #   - name: Terraform Init
