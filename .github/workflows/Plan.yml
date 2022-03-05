@@ -37,7 +37,7 @@ jobs:
         run: echo "TF_VAR_TFVERSION=HELLO" >> $GITHUB_ENV
       
       - name: Echo Terraform version        
-        run: echo "Terraform version is ${{env.TF_VAR_terraform_version}}"
+        run: echo "Terraform version is ${{env.TF_VAR_TFVERSION}}"
     
     #TF_VAR_TFVERSION=$(terraform version -json | grep 'terraform_version' | sed -r 's/^[^:]*:(.*)$/\1/' | sed 's/,//g' | sed 's/[[:space:]]//g')
     #   # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
